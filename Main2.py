@@ -15,7 +15,7 @@ import csv
 import numpy as np
 from matplotlib import pyplot as plt 
 
-adata = sc.read_h5ad("C:/Users/Dr. Hamad/Downloads/SRSI/SRSI projects/data/TrajectInfer.h5ad")
+
 
 #####################
 ## functions 
@@ -25,6 +25,14 @@ def adataX2pandas(adata):
     gene_expression.index = adata.obs.index
     gene_expression = gene_expression.T
     return(gene_expression)
+
+def Generating_data_for_I_go(adata):
+    gene_expression_df = pd.DataFrame()
+    gene_expression_df = pd.concat([gene_expression_df, pd.DataFrame(adata.X)], axis=1)
+    gene_expression_df.columns = [adata.var.index]
+    gene_expression_df.to_csv('data/gene_expression.csv')
+    adata.obs.to_csv("data/adataobs.csv")
+    adata.var.to_csv("data/adatavar.csv")
 
 # calculating E, S, C
 def calculating_ESC(adata, I_ge_label="I_ge", I_go_label="I_go"):
@@ -40,46 +48,35 @@ def calculating_ESC(adata, I_ge_label="I_ge", I_go_label="I_go"):
     
     return adata
 
+def Returning_I_go(adata):
+
+    # 1. Generating relavent files
+    Generating_data_for_I_go(adata)
+
+    # 2. Running R script
+    subprocess.call("R CMD BATCH REntropyIgo.r", shell=True)
+
+    # 3. loading data
+    I_go = pd.read_csv("data/Rigo.csv")
+
+    return(I_go)
+
 #####################
 ## start of script 
 
 ## finding Ige 
 
-## data imports
-# df_data = pd.read_csv("C:/Users/Dr. Hamad/Downloads/SRSI/SRSI projects/gene_expression.csv", delimiter=",")
+## loading adata object
+adata = sc.read_h5ad("data/TrajectInfer.h5ad")
+print("loading adata object")
 
-# assign row names
-# df_data = df_data.set_index("Unnamed: 0") 
-# df_data = df_data.T
-
-# assigning df_data
-# gene_expression = adata.X 
-# gene_expression
-# print(gene_expression.shape)
-
-#running scEntropy
+# Getting I_ge
 I_ge = scEntropy.scEntropy(adataX2pandas(adata), option='RCSA')
-# I_ge_df = pd.DataFrame(I_ge, columns=["I_ge"])
+print("Getting I_ge")
 
-# adata.write("C:/Users/Dr. Hamad/Downloads/SRSI/SRSI projects/data/TrajectInfer.h5ad")
-# Saving the array 
-# I_ge_df.to_csv("Pyige.csv")
-#firstarray = np.genfromtxt("PyIge.csv", delimiter=",")
-
-# Sanity Check 
-# print(I_ge_df) 
-
-
-## finding Igo
-subprocess.call("R CMD BATCH REntropyIgo.r", shell=True)
-
-
-## computing metrics
-
-# loading data
-# adata = sc.read_h5ad("C:/Users/Dr. Hamad/Downloads/SRSI/SRSI projects/data/TrajectInfer.h5ad")
-# I_ge = pd.read_csv("C:/Users/Dr. Hamad/Downloads/SRSI/SRSI projects/Pyige.csv")
-I_go = pd.read_csv("data/Rigo.csv")
+# Getting I_go 
+I_go = Returning_I_go(adata)
+print("Getting I_go")
 
 # inscribing I_go & I_ge into adata.obs 
 adata.obs["I_ge"] = I_ge
@@ -90,10 +87,10 @@ adata.obs["I_go"] = I_go.I_go
  
 
 adata = calculating_ESC(adata, I_ge_label="I_ge", I_go_label="I_go")
-print(adata.obs)
+print("Calculating E,S,C")
 
 # saving adata.with new variables 
-adata.write_h5ad("C:/Users/Dr. Hamad/Downloads/SRSI/SRSI projects/data/Paul15ESC.h5ad")
+adata.write_h5ad("data/Paul15ESC.h5ad")
 # adata = sc.read_h5ad("C:/Users/Dr. Hamad/Downloads/SRSI/SRSI projects/data/Paul15ESC.h5ad")
 
 # sanity check 

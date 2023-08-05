@@ -1,4 +1,8 @@
 ## load libraries
+library(yaml) 
+
+
+
 library(SLICE)   #loading the SLICE library
 library(anndata)
 library(Biobase)
@@ -8,22 +12,26 @@ data.name = "paul_15"
 species = "mouse"
 celltype = "paul15_clusters"
 
+obs_data = "data/adataobs.csv"
+var_data = "data/adatavar.csv"
+X_data = "data/gene_expression.csv"
+
 ## Build ExpressionSet
 
 # phenoData:
-tmp <- read.csv("adataobs.csv", row.names = 1) #import obs
+tmp <- read.csv(obs_data, row.names = 1) #import obs
 tmp$Cell = rownames(tmp)
 pdata <- AnnotatedDataFrame(tmp)
 
 print(tmp)
 # featureData:
-tmp <- read.csv("adatavar.csv", row.names = 1) #import var
+tmp <- read.csv(var_data, row.names = 1) #import var
 tmp$SYMBOL = rownames(tmp)
 fdata <- AnnotatedDataFrame(tmp)
 
 print(tmp)
 # expression data:
-tmp <- read.table("gene_expression.csv", row.names = 1, header = TRUE, sep = ",") #import X
+tmp <- read.table(X_data, row.names = 1, header = TRUE, sep = ",") #import X
 m <- as.matrix(tmp)
 m = t(m) 
 row.names(m) = fdata@data$SYMBOL
