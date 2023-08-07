@@ -1,10 +1,5 @@
 ## libraries 
-# from yaml import scanpy
-import yaml 
 
-with open('EntropyV2.yaml', 'r') as file:
-    data = yaml.safe_load(file)
-    
 import subprocess
 import anndata
 import scanpy as sc

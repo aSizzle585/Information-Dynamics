@@ -1,8 +1,4 @@
 ## load libraries
-library(yaml) 
-
-
-
 library(SLICE)   #loading the SLICE library
 library(anndata)
 library(Biobase)
@@ -16,6 +12,10 @@ obs_data = "data/adataobs.csv"
 var_data = "data/adatavar.csv"
 X_data = "data/gene_expression.csv"
 
+
+## Checkpoint
+# ifelse(species %in% c("mouse","human"),,er)
+
 ## Build ExpressionSet
 
 # phenoData:
@@ -23,13 +23,13 @@ tmp <- read.csv(obs_data, row.names = 1) #import obs
 tmp$Cell = rownames(tmp)
 pdata <- AnnotatedDataFrame(tmp)
 
-print(tmp)
+# print(tmp)
 # featureData:
 tmp <- read.csv(var_data, row.names = 1) #import var
 tmp$SYMBOL = rownames(tmp)
 fdata <- AnnotatedDataFrame(tmp)
 
-print(tmp)
+# print(tmp)
 # expression data:
 tmp <- read.table(X_data, row.names = 1, header = TRUE, sep = ",") #import X
 m <- as.matrix(tmp)
@@ -53,18 +53,26 @@ sc <- construct(exprmatrix=as.data.frame(exprs(es)),
                 cellidentity=factor(pData(es)[celltype]),
                 projname=context_str)
 
-data(mm_kappasim)
+if(species == "mouse"){
+    data(mm_kappasim)
+    }
+if(species == "human"){
+    data(hs_kappasim)
+    }
 
-sc <- getEntropy(sc, km=km,                             # use the pre-computed kappa similarity matrix of mouse genes
+
+sc2 <- getEntropy(sc, km=km,                             # use the pre-computed kappa similarity matrix of mouse genes
                  calculation="bootstrap",               # choose the bootstrap calculation
-                 B.num=100,                             # 100 iterations
+                 B.num=10,                             # 100 iterations
                  exp.cutoff=1,                          # the threshold for expressed genes
                  B.size=1000,                           # the size of bootstrap sample
                  clustering.k=floor(sqrt(1000/2)),      # the number of functional clusters  
                  random.seed=201602)                    # set the random seed to reproduce the results in the paper
 
+sc2 <- getEntropy(sc, km=km,calculation="bootstrap",B.num=1,exp.cutoff=1,B.size=1000,clustering.k=floor(sqrt(1000/2)), random.seed=201602)
 I_go = sc@entropies
 colnames(I_go) = "I_go"
 
 ## Export results
 write.csv(I_go, "data/Rigo.csv",row.names=FALSE)
+
