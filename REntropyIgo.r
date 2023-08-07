@@ -50,7 +50,7 @@ rb.genes <- grep("^Rpl|^Rps|^Mrpl|^Mrps", rownames(fData(es)), value = TRUE)
 es <- es[which(!(rownames(fData(es)) %in% c(rb.genes, ercc.genes))), ]
 
 sc <- construct(exprmatrix=as.data.frame(exprs(es)), 
-                cellidentity=factor(pData(es)[celltype]),
+                cellidentity=factor(pData(es)[,celltype]),
                 projname=context_str)
 
 if(species == "mouse"){
@@ -63,13 +63,13 @@ if(species == "human"){
 
 sc2 <- getEntropy(sc, km=km,                             # use the pre-computed kappa similarity matrix of mouse genes
                  calculation="bootstrap",               # choose the bootstrap calculation
-                 B.num=10,                             # 100 iterations
+                 B.num=1000,                             # 100 iterations
                  exp.cutoff=1,                          # the threshold for expressed genes
                  B.size=1000,                           # the size of bootstrap sample
                  clustering.k=floor(sqrt(1000/2)),      # the number of functional clusters  
                  random.seed=201602)                    # set the random seed to reproduce the results in the paper
 
-sc2 <- getEntropy(sc, km=km,calculation="bootstrap",B.num=1,exp.cutoff=1,B.size=1000,clustering.k=floor(sqrt(1000/2)), random.seed=201602)
+#sc2 <- getEntropy(sc, km=km,calculation="bootstrap",B.num=1,exp.cutoff=1,B.size=1000,clustering.k=floor(sqrt(1000/2)), random.seed=201602)
 I_go = sc@entropies
 colnames(I_go) = "I_go"
 
