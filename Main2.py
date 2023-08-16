@@ -75,7 +75,7 @@ print("Getting I_go")
 
 # inscribing I_go & I_ge into adata.obs 
 adata.obs["I_ge"] = I_ge
-adata.obs["I_go"] = I_go["scEntropy.bootstrap"]
+adata.obs["I_go"] = I_go["scEntropy.bootstrap"].to_numpy()
 # adata.obs = pd.concat([adata.obs, I_ge], axis=1)
 
 # adata.write("C:/Users/Dr. Hamad/Downloads/SRSI/SRSI projects/data/TrajectInfer.h5ad")
